@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useEffect, useState } from "react";
 import { Debtor } from "@prisma/client";
 import Link from "next/link";
