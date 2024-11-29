@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import { Debtor } from "@prisma/client";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { Loader, LoaderCircle } from "lucide-react";
 
 function getDebtors() {
   return fetch("/api/debtors", {
@@ -19,15 +20,30 @@ function getDebtors() {
 export default function DebtorList() {
   const [debtors, setDebtors] = useState<Debtor[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     getDebtors()
-      .then(setDebtors)
-      .catch((err) => setError(err.message));
+      .then((data) => {
+        setDebtors(data);
+        setIsLoading(false);
+      })
+      .catch((err) => {
+        setError(err.message);
+        setIsLoading(false);
+      });
   }, []);
 
   if (error) {
     return <div>Error: {error}</div>;
+  }
+
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center animate-spin">
+        <LoaderCircle className="h-7 w-7" />
+      </div>
+    );
   }
 
   return (
