@@ -1,6 +1,10 @@
 import { notFound } from "next/navigation";
 import { PrismaClient } from "@prisma/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import dayjs from "dayjs";
+import relativeTime from "dayjs/plugin/relativeTime";
+
+dayjs.extend(relativeTime);
 
 const prisma = new PrismaClient();
 
@@ -23,6 +27,21 @@ export default async function DebtorPage(props: {
   const uuid = params.uuid;
   const debtor = await getDebtor(uuid);
 
+  // Format the amount to display as INR
+  const formattedAmount = new Intl.NumberFormat("en-IN", {
+    style: "currency",
+    currency: "INR",
+  }).format(debtor.amount);
+
+  // Calculate the due date and the relative time
+  const dueDate = new Date(debtor.dueDate);
+  const dueDateString = new Intl.DateTimeFormat("en-IN", {
+    day: "2-digit",
+    month: "long",
+    year: "numeric",
+  }).format(dueDate);
+  const relativeDueDate = dayjs(dueDate).fromNow();
+
   return (
     <div className="container mx-auto p-4">
       <Card className="max-w-md mx-auto">
@@ -35,8 +54,10 @@ export default async function DebtorPage(props: {
             This is a reminder about your outstanding debt:
           </p>
           <ul className="list-disc list-inside mb-4">
-            <li>Amount: ${debtor.amount.toFixed(2)}</li>
-            <li>Due Date: {new Date(debtor.dueDate).toLocaleDateString()}</li>
+            <li>Amount: {formattedAmount}</li>
+            <li>
+              Due Date: {dueDateString} ({relativeDueDate})
+            </li>
           </ul>
           <p>
             Please ensure to make the payment by the due date. If you have any
