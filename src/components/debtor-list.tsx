@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 async function getDebtors() {
   const baseUrl =
     process.env.NODE_ENV === "production"
-      ? "https://" + process.env.VERCEL_URL
+      ? process.env.NEXT_PUBLIC_API_URL
       : "http://localhost:3000";
   const response = await fetch(`${baseUrl}/api/debtors`, {
     method: "GET",
