@@ -1,10 +1,10 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
-import { Debtor } from "@prisma/client";
-import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { Loader, LoaderCircle } from "lucide-react";
+import { Debtor } from "@prisma/client";
+import { LoaderCircle } from "lucide-react";
+import Link from "next/link";
+import { useEffect, useState } from "react";
 
 function getDebtors() {
   return fetch("/api/debtors", {
