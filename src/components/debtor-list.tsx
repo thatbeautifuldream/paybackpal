@@ -3,7 +3,13 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 
 async function getDebtors() {
-  const res = await fetch("/api/debtors", { cache: "no-store" });
+  const baseUrl =
+    process.env.NODE_ENV === "production"
+      ? process.env.VERCEL_URL
+      : "http://localhost:3000";
+  const res = await fetch(`${baseUrl}/api/debtors`, {
+    cache: "no-store",
+  });
   if (!res.ok) {
     throw new Error("Failed to fetch debtors");
   }

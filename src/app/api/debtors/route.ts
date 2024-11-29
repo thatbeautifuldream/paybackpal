@@ -31,6 +31,12 @@ export async function POST(req: Request) {
 export async function GET() {
   try {
     const debtors = await prisma.debtor.findMany();
+    if (debtors.length === 0) {
+      return NextResponse.json(
+        { message: "No debtors found" },
+        { status: 200 }
+      );
+    }
     return NextResponse.json(debtors);
   } catch (error: unknown) {
     return NextResponse.json(
