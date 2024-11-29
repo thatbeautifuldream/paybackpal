@@ -5,6 +5,11 @@ import { Debtor } from "@prisma/client";
 import { LoaderCircle } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import dayjs from "dayjs";
+import relativeTime from "dayjs/plugin/relativeTime";
+import { formatCurrency, formatDate } from "@/lib/utils";
+
+dayjs.extend(relativeTime);
 
 function getDebtors() {
   return fetch("/api/debtors", {
@@ -53,10 +58,14 @@ export default function DebtorList() {
         {debtors.map((debtor) => (
           <li key={debtor.id} className="border p-4 rounded-md">
             <h3 className="font-bold">{debtor.name}</h3>
-            <p>Amount: ${debtor.amount.toFixed(2)}</p>
-            <p>Due Date: {new Date(debtor.dueDate).toLocaleDateString()}</p>
+            <p>Amount: {formatCurrency(debtor.amount)}</p>
             <p>
-              Remind Date: {new Date(debtor.remindDate).toLocaleDateString()}
+              Due Date: {formatDate(new Date(debtor.dueDate))} (
+              {dayjs(new Date(debtor.dueDate)).fromNow()})
+            </p>
+            <p>
+              Remind Date: {formatDate(new Date(debtor.remindDate))} (
+              {dayjs(new Date(debtor.remindDate)).fromNow()})
             </p>
             <Link href={`/debtor/${debtor.uuid}`} passHref>
               <Button className="mt-2">View Public Page</Button>

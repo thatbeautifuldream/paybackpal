@@ -3,6 +3,7 @@ import { PrismaClient } from "@prisma/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
+import { formatCurrency, formatDate } from "@/lib/utils";
 
 dayjs.extend(relativeTime);
 
@@ -27,17 +28,10 @@ export default async function DebtorPage(props: {
   const uuid = params.uuid;
   const debtor = await getDebtor(uuid);
 
-  const formattedAmount = new Intl.NumberFormat("en-IN", {
-    style: "currency",
-    currency: "INR",
-  }).format(debtor.amount);
-
+  const formattedAmount = formatCurrency(debtor.amount);
   const dueDate = new Date(debtor.dueDate);
-  const dueDateString = new Intl.DateTimeFormat("en-IN", {
-    day: "2-digit",
-    month: "long",
-    year: "numeric",
-  }).format(dueDate);
+  const dueDateString = formatDate(dueDate);
+
   const relativeDueDate = dayjs(dueDate).fromNow();
 
   return (
