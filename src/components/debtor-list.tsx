@@ -1,23 +1,32 @@
+import React, { useEffect, useState } from "react";
 import { Debtor } from "@prisma/client";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 
-async function getDebtors() {
-  const baseUrl =
-    process.env.NODE_ENV === "production"
-      ? process.env.NEXT_PUBLIC_API_URL
-      : "http://localhost:3000";
-  const response = await fetch(`${baseUrl}/api/debtors`, {
+function getDebtors() {
+  return fetch("/api/debtors", {
     method: "GET",
+  }).then((response) => {
+    if (!response.ok) {
+      throw new Error("Failed to fetch debtors");
+    }
+    return response.json();
   });
-  if (!response.ok) {
-    throw new Error("Failed to fetch debtors");
-  }
-  return response.json();
 }
 
-export default async function DebtorList() {
-  const debtors: Debtor[] = await getDebtors();
+export default function DebtorList() {
+  const [debtors, setDebtors] = useState<Debtor[]>([]);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    getDebtors()
+      .then(setDebtors)
+      .catch((err) => setError(err.message));
+  }, []);
+
+  if (error) {
+    return <div>Error: {error}</div>;
+  }
 
   return (
     <div>
