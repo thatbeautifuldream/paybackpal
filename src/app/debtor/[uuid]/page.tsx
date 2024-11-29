@@ -23,6 +23,12 @@ export default async function DebtorPage(props: {
   const uuid = params.uuid;
   const debtor = await getDebtor(uuid);
 
+  // Format the amount to INR
+  const formattedAmount = new Intl.NumberFormat("en-IN", {
+    style: "currency",
+    currency: "INR",
+  }).format(debtor.amount);
+
   return (
     <div className="container mx-auto p-4">
       <Card className="max-w-md mx-auto">
@@ -35,7 +41,7 @@ export default async function DebtorPage(props: {
             This is a reminder about your outstanding debt:
           </p>
           <ul className="list-disc list-inside mb-4">
-            <li>Amount: ${debtor.amount.toFixed(2)}</li>
+            <li>Amount: {formattedAmount}</li>
             <li>Due Date: {new Date(debtor.dueDate).toLocaleDateString()}</li>
           </ul>
           <p>
