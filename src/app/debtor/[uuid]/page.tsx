@@ -27,13 +27,11 @@ export default async function DebtorPage(props: {
   const uuid = params.uuid;
   const debtor = await getDebtor(uuid);
 
-  // Format the amount to display as INR
   const formattedAmount = new Intl.NumberFormat("en-IN", {
     style: "currency",
     currency: "INR",
   }).format(debtor.amount);
 
-  // Calculate the due date and the relative time
   const dueDate = new Date(debtor.dueDate);
   const dueDateString = new Intl.DateTimeFormat("en-IN", {
     day: "2-digit",

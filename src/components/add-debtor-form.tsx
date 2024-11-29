@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { toast } from "sonner";
 
 export default function AddDebtorForm() {
   const [formData, setFormData] = useState({
@@ -19,6 +20,18 @@ export default function AddDebtorForm() {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleCopyUrl = (url: string) => {
+    navigator.clipboard
+      .writeText(url)
+      .then(() => {
+        toast.info("URL copied to clipboard!");
+      })
+      .catch((err) => {
+        console.error("Failed to copy URL:", err);
+        toast.error("Failed to copy URL. Please try again.");
+      });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -40,12 +53,22 @@ export default function AddDebtorForm() {
           remindDate: "",
         });
         router.refresh();
-        alert(
-          `Debtor added successfully. Public page URL: ${window.location.origin}/debtor/${newDebtor.uuid}`
+        const url = `${window.location.origin}/debtor/${newDebtor.uuid}`;
+        toast.success(
+          <div>
+            Debtor added successfully.{" "}
+            <button
+              onClick={() => handleCopyUrl(url)}
+              style={{ color: "blue", textDecoration: "underline" }}
+            >
+              Copy URL
+            </button>
+          </div>
         );
       }
     } catch (error) {
       console.error("Error adding debtor:", error);
+      toast.error("Error adding debtor. Please try again.");
     }
   };
 
