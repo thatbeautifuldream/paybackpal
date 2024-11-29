@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 async function getDebtors() {
   const baseUrl =
     process.env.NODE_ENV === "production"
-      ? process.env.VERCEL_URL
+      ? "https://" + process.env.VERCEL_URL
       : "http://localhost:3000";
   const res = await fetch(`${baseUrl}/api/debtors`, {
     cache: "no-store",
