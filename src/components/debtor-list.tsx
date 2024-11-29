@@ -3,7 +3,11 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 
 async function getDebtors() {
-  const response = await fetch("/api/debtors", {
+  const baseUrl =
+    process.env.NODE_ENV === "production"
+      ? "https://" + process.env.NEXT_PUBLIC_VERCEL_URL
+      : "http://localhost:3000";
+  const response = await fetch(`${baseUrl}/api/debtors`, {
     method: "GET",
   });
   if (!response.ok) {
