@@ -55,12 +55,14 @@ export default function DebtorList() {
       <h2 className="text-xl font-semibold mb-4">Debtors List</h2>
       <ul className="space-y-4">
         {debtors.map((debtor) => (
-          <li key={debtor.id} className="border p-4 rounded-md">
+          <Link
+            className="block border p-4 rounded-md transition-colors duration-200 hover:bg-gray-50 hover:border-gray-300 dark:hover:bg-gray-800/50 dark:hover:border-gray-600"
+            href={`/debtor/${debtor.uuid}`}
+            key={debtor.id}
+          >
             <div className="flex justify-between items-center mb-2">
               <h3 className="text-lg font-bold">{debtor.name}</h3>
-              <Link href={`/debtor/${debtor.uuid}`}>
-                <ExternalLink size={16} />
-              </Link>
+              <ExternalLink size={16} />
             </div>
             <p className="text-sm text-gray-600 dark:text-gray-400">
               Amount: {formatCurrency(debtor.amount)}
@@ -73,7 +75,7 @@ export default function DebtorList() {
               Remind Date: {formatDate(new Date(debtor.remindDate))} (
               {dayjs(new Date(debtor.remindDate)).fromNow()})
             </p>
-          </li>
+          </Link>
         ))}
       </ul>
     </div>
