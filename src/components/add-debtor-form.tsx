@@ -25,7 +25,7 @@ export default function AddDebtorForm() {
     handleSubmit,
     formState: { errors },
     reset,
-  } = useForm({
+  } = useForm<z.infer<typeof debtorSchema>>({
     resolver: zodResolver(debtorSchema),
   });
 
@@ -74,7 +74,7 @@ export default function AddDebtorForm() {
   };
 
   return (
-    <form onSubmit={handleSubmit(() => onSubmit)} className="space-y-4 mb-8">
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 mb-8">
       <div>
         <Label htmlFor="name">Name</Label>
         <Input id="name" {...register("name")} required />
