@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useRouter } from "next/navigation";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -18,14 +18,16 @@ const debtorSchema = z.object({
   remindDate: z.string().min(1, "Remind date is required"),
 });
 
+type DebtorFormData = z.infer<typeof debtorSchema>;
+
 export default function AddDebtorForm() {
-  const router = useRouter();
+  const queryClient = useQueryClient();
   const {
     register,
     handleSubmit,
     formState: { errors },
     reset,
-  } = useForm<z.infer<typeof debtorSchema>>({
+  } = useForm<DebtorFormData>({
     resolver: zodResolver(debtorSchema),
   });
 
@@ -41,36 +43,44 @@ export default function AddDebtorForm() {
       });
   };
 
-  const onSubmit: SubmitHandler<z.infer<typeof debtorSchema>> = async (
-    data
-  ) => {
-    try {
+  const { mutate: addDebtor } = useMutation({
+    mutationFn: async (data: DebtorFormData) => {
       const response = await fetch("/api/debtors", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
       });
-      if (response.ok) {
-        const newDebtor = await response.json();
-        reset();
-        router.refresh();
-        const url = `${window.location.origin}/debtor/${newDebtor.uuid}`;
-        toast.success(
-          <div>
-            Debtor added successfully.{" "}
-            <button
-              onClick={() => handleCopyUrl(url)}
-              style={{ color: "blue", textDecoration: "underline" }}
-            >
-              Copy URL
-            </button>
-          </div>
-        );
+
+      if (!response.ok) {
+        throw new Error("Failed to add debtor");
       }
-    } catch (error) {
+
+      return response.json();
+    },
+    onSuccess: (newDebtor) => {
+      reset();
+      queryClient.invalidateQueries({ queryKey: ["debtors"] });
+      const url = `${window.location.origin}/debtor/${newDebtor.uuid}`;
+      toast.success(
+        <div>
+          Debtor added successfully.{" "}
+          <button
+            onClick={() => handleCopyUrl(url)}
+            style={{ color: "blue", textDecoration: "underline" }}
+          >
+            Copy URL
+          </button>
+        </div>
+      );
+    },
+    onError: (error) => {
       console.error("Error adding debtor:", error);
       toast.error("Error adding debtor. Please try again.");
-    }
+    },
+  });
+
+  const onSubmit: SubmitHandler<DebtorFormData> = (data) => {
+    addDebtor(data);
   };
 
   return (

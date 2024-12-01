@@ -1,12 +1,12 @@
 import type { Metadata } from "next";
 import { Public_Sans } from "next/font/google";
 import "./globals.css";
-import Providers from "@/providers";
+import { Providers } from "@/providers";
 import { ModeToggle } from "@/components/mode-toggle";
+import { cn } from "@/lib/utils";
 
 const publicSans = Public_Sans({
   subsets: ["latin"],
-  variable: "--font-public-sans",
   weight: ["400", "700"],
 });
 
@@ -17,12 +17,12 @@ export const metadata: Metadata = {
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
+}) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={publicSans.className}>
+      <body className={cn(publicSans.className, "antialiased")}>
         <Providers>
           <div className="flex justify-end p-4">
             <ModeToggle />

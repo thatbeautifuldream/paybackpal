@@ -6,40 +6,47 @@ import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import { ExternalLink, LoaderCircle } from "lucide-react";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 
 dayjs.extend(relativeTime);
 
-function getDebtors() {
-  return fetch("/api/debtors", {
+async function getDebtors() {
+  const response = await fetch("/api/debtors", {
     method: "GET",
-  }).then((response) => {
-    if (!response.ok) {
-      throw new Error("Failed to fetch debtors");
-    }
-    return response.json();
   });
+
+  if (!response.ok) {
+    throw new Error("Failed to fetch debtors");
+  }
+
+  return response.json();
 }
 
 export default function DebtorList() {
-  const [debtors, setDebtors] = useState<Debtor[]>([]);
-  const [error, setError] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    getDebtors()
-      .then((data) => {
-        setDebtors(data);
-        setIsLoading(false);
-      })
-      .catch((err) => {
-        setError(err.message);
-        setIsLoading(false);
+  const {
+    data: debtors = [],
+    isError,
+    error,
+    isLoading,
+  } = useQuery<Debtor[], Error>({
+    queryKey: ["debtors"],
+    queryFn: getDebtors,
+    select: (data) => {
+      return [...data].sort((a, b) => {
+        // Sort by createdAt if available, otherwise use remindDate
+        const dateA = a.createdAt
+          ? new Date(a.createdAt)
+          : new Date(a.remindDate);
+        const dateB = b.createdAt
+          ? new Date(b.createdAt)
+          : new Date(b.remindDate);
+        return dateB.getTime() - dateA.getTime();
       });
-  }, []);
+    },
+  });
 
-  if (error) {
-    return <div>Error: {error}</div>;
+  if (isError) {
+    return <div>Error: {error.message}</div>;
   }
 
   if (isLoading) {
