@@ -1,6 +1,5 @@
 import { notFound } from "next/navigation";
 import { PrismaClient } from "@prisma/client";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import { formatCurrency, formatDate } from "@/lib/utils";
@@ -36,27 +35,33 @@ export default async function DebtorPage(props: {
 
   return (
     <div className="container mx-auto p-4">
-      <Card className="max-w-md mx-auto">
-        <CardHeader>
-          <CardTitle>Debt Reminder</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p className="mb-4">Hello {debtor.name},</p>
-          <p className="mb-4">
-            This is a reminder about your outstanding debt:
-          </p>
-          <ul className="list-disc list-inside mb-4">
-            <li>Amount: {formattedAmount}</li>
-            <li>
-              Due Date: {dueDateString} ({relativeDueDate})
-            </li>
-          </ul>
-          <p>
-            Please ensure to make the payment by the due date. If you have any
-            questions or concerns, please don&apos;t hesitate to contact us.
-          </p>
-        </CardContent>
-      </Card>
+      <div className="max-w-md mx-auto border-2 border-gray-300 p-4 shadow-lg dark:border-gray-700 bg-white dark:bg-gray-900 font-mono">
+        <h1 className="text-center text-lg font-bold mb-4 dark:text-white">
+          Debt Receipt
+        </h1>
+        <p>
+          Debtor: <strong>{debtor.name}</strong>
+        </p>
+        <p>
+          Date: <strong>{formatDate(new Date())}</strong>
+        </p>
+        <hr className="my-2 dark:border-gray-700" />
+        <p>Outstanding Debt Details:</p>
+        <p>
+          Amount Due: <strong>{formattedAmount}</strong>
+        </p>
+        <p>
+          Due Date: <strong>{dueDateString}</strong> ({relativeDueDate})
+        </p>
+        <hr className="my-2 dark:border-gray-700" />
+        <p className="text-xs dark:text-gray-400">
+          Timely repayment of your debt is crucial for maintaining financial
+          health and avoiding potential penalties. Both parties benefit from
+          prompt settlement, ensuring continued good relations and financial
+          stability. Please ensure to make the payment by the due date. For any
+          inquiries, contact us.
+        </p>
+      </div>
     </div>
   );
 }

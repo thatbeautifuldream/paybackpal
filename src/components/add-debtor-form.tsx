@@ -1,26 +1,33 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useRouter } from "next/navigation";
+import { SubmitHandler, useForm } from "react-hook-form";
 import { toast } from "sonner";
+import { z } from "zod";
+
+const debtorSchema = z.object({
+  name: z.string().min(1, "Name is required"),
+  email: z.string().email("Invalid email address"),
+  phone: z.string().optional(),
+  amount: z.number().min(1, "Amount must be greater than zero"),
+  dueDate: z.string().min(1, "Due date is required"),
+  remindDate: z.string().min(1, "Remind date is required"),
+});
 
 export default function AddDebtorForm() {
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    phone: "",
-    amount: "",
-    dueDate: "",
-    remindDate: "",
-  });
   const router = useRouter();
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    reset,
+  } = useForm({
+    resolver: zodResolver(debtorSchema),
+  });
 
   const handleCopyUrl = (url: string) => {
     navigator.clipboard
@@ -34,24 +41,18 @@ export default function AddDebtorForm() {
       });
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const onSubmit: SubmitHandler<z.infer<typeof debtorSchema>> = async (
+    data
+  ) => {
     try {
       const response = await fetch("/api/debtors", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(data),
       });
       if (response.ok) {
         const newDebtor = await response.json();
-        setFormData({
-          name: "",
-          email: "",
-          phone: "",
-          amount: "",
-          dueDate: "",
-          remindDate: "",
-        });
+        reset();
         router.refresh();
         const url = `${window.location.origin}/debtor/${newDebtor.uuid}`;
         toast.success(
@@ -73,69 +74,56 @@ export default function AddDebtorForm() {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4 mb-8">
+    <form onSubmit={handleSubmit(() => onSubmit)} className="space-y-4 mb-8">
       <div>
         <Label htmlFor="name">Name</Label>
-        <Input
-          id="name"
-          name="name"
-          value={formData.name}
-          onChange={handleChange}
-          required
-        />
+        <Input id="name" {...register("name")} required />
+        {errors.name && (
+          <p className="text-red-500">{errors.name.message as string}</p>
+        )}
       </div>
-      <div>
-        <Label htmlFor="email">Email</Label>
-        <Input
-          id="email"
-          name="email"
-          type="email"
-          value={formData.email}
-          onChange={handleChange}
-        />
-      </div>
-      <div>
-        <Label htmlFor="phone">Phone</Label>
-        <Input
-          id="phone"
-          name="phone"
-          type="tel"
-          value={formData.phone}
-          onChange={handleChange}
-        />
+      <div className="flex flex-wrap -mx-3 mb-6">
+        <div className="w-full md:w-1/2 px-3 mb-6 md:mb-0">
+          <Label htmlFor="email">Email</Label>
+          <Input id="email" type="email" {...register("email")} />
+          {errors.email && (
+            <p className="text-red-500">{errors.email.message as string}</p>
+          )}
+        </div>
+        <div className="w-full md:w-1/2 px-3">
+          <Label htmlFor="phone">Phone</Label>
+          <Input id="phone" type="tel" {...register("phone")} />
+        </div>
       </div>
       <div>
         <Label htmlFor="amount">Amount</Label>
-        <Input
-          id="amount"
-          name="amount"
-          type="number"
-          value={formData.amount}
-          onChange={handleChange}
-          required
-        />
+        <Input id="amount" type="number" {...register("amount")} required />
+        {errors.amount && (
+          <p className="text-red-500">{errors.amount.message as string}</p>
+        )}
       </div>
-      <div>
-        <Label htmlFor="dueDate">Due Date</Label>
-        <Input
-          id="dueDate"
-          name="dueDate"
-          type="date"
-          value={formData.dueDate}
-          onChange={handleChange}
-          required
-        />
-      </div>
-      <div>
-        <Label htmlFor="remindDate">Remind Date</Label>
-        <Input
-          id="remindDate"
-          name="remindDate"
-          type="date"
-          value={formData.remindDate}
-          onChange={handleChange}
-          required
-        />
+      <div className="flex flex-wrap -mx-3 mb-6">
+        <div className="w-full md:w-1/2 px-3 mb-6 md:mb-0">
+          <Label htmlFor="dueDate">Due Date</Label>
+          <Input id="dueDate" type="date" {...register("dueDate")} required />
+          {errors.dueDate && (
+            <p className="text-red-500">{errors.dueDate.message as string}</p>
+          )}
+        </div>
+        <div className="w-full md:w-1/2 px-3">
+          <Label htmlFor="remindDate">Remind Date</Label>
+          <Input
+            id="remindDate"
+            type="date"
+            {...register("remindDate")}
+            required
+          />
+          {errors.remindDate && (
+            <p className="text-red-500">
+              {errors.remindDate.message as string}
+            </p>
+          )}
+        </div>
       </div>
       <Button type="submit">Add Debtor</Button>
     </form>

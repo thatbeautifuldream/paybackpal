@@ -1,13 +1,12 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
+import { formatCurrency, formatDate } from "@/lib/utils";
 import { Debtor } from "@prisma/client";
-import { LoaderCircle } from "lucide-react";
-import Link from "next/link";
-import { useEffect, useState } from "react";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
-import { formatCurrency, formatDate } from "@/lib/utils";
+import { ExternalLink, LoaderCircle } from "lucide-react";
+import Link from "next/link";
+import { useEffect, useState } from "react";
 
 dayjs.extend(relativeTime);
 
@@ -57,19 +56,23 @@ export default function DebtorList() {
       <ul className="space-y-4">
         {debtors.map((debtor) => (
           <li key={debtor.id} className="border p-4 rounded-md">
-            <h3 className="font-bold">{debtor.name}</h3>
-            <p>Amount: {formatCurrency(debtor.amount)}</p>
-            <p>
+            <div className="flex justify-between items-center mb-2">
+              <h3 className="text-lg font-bold">{debtor.name}</h3>
+              <Link href={`/debtor/${debtor.uuid}`}>
+                <ExternalLink size={16} />
+              </Link>
+            </div>
+            <p className="text-sm text-gray-600 dark:text-gray-400">
+              Amount: {formatCurrency(debtor.amount)}
+            </p>
+            <p className="text-sm text-gray-600 dark:text-gray-400">
               Due Date: {formatDate(new Date(debtor.dueDate))} (
               {dayjs(new Date(debtor.dueDate)).fromNow()})
             </p>
-            <p>
+            <p className="text-sm text-gray-600 dark:text-gray-400">
               Remind Date: {formatDate(new Date(debtor.remindDate))} (
               {dayjs(new Date(debtor.remindDate)).fromNow()})
             </p>
-            <Link href={`/debtor/${debtor.uuid}`} passHref>
-              <Button className="mt-2">View Public Page</Button>
-            </Link>
           </li>
         ))}
       </ul>
