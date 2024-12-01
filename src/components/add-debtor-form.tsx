@@ -97,7 +97,14 @@ export default function AddDebtorForm() {
       </div>
       <div>
         <Label htmlFor="amount">Amount</Label>
-        <Input id="amount" type="number" {...register("amount")} required />
+        <Input
+          id="amount"
+          type="number"
+          {...register("amount", {
+            valueAsNumber: true,
+          })}
+          required
+        />
         {errors.amount && (
           <p className="text-red-500">{errors.amount.message as string}</p>
         )}
